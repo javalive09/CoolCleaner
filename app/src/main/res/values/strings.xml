@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CoolCleaner</string>
+    <string name="accessibility_description">auto force stop</string>
+</resources>
