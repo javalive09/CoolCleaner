@@ -36,6 +36,7 @@ public class Board extends RelativeLayout {
 	
 	GestureDetector mGestureDetector;
 	MyOnGestureListener mGestureListener;
+	int speed = 2000;
 
 	public Board(Context context, AttributeSet as) {
 		super(context, as);
@@ -126,7 +127,7 @@ public class Board extends RelativeLayout {
 		}
 		
 		public boolean speedRemove() {
-			if(vx > 3500 || vy > 3500 || vx < -3500 || vy < -3500) {
+			if(vx > speed || vy > speed || vx < -speed || vy < -speed) {
 				return true;
 			}
 			return false;

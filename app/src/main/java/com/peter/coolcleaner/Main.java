@@ -86,8 +86,8 @@ public class Main extends Activity {
 					Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 					startActivity(intent);
 				}
-				String channel = getApplicationMetaValue("UMENG_CHANNEL");
-				Toast.makeText(Main.this, "channel:" + channel, Toast.LENGTH_LONG).show();
+//				String channel = getApplicationMetaValue("UMENG_CHANNEL");
+//				Toast.makeText(Main.this, "channel:" + channel, Toast.LENGTH_LONG).show();
 			}
 		}, 1000);
 	}
@@ -194,7 +194,7 @@ public class Main extends Activity {
 							unRegisterMyReceiver();
 							
 							if(clearAll) {
-								mHandler.postDelayed(clearNext, 1000);
+								mHandler.postDelayed(clearNext, 600);
 							}
 						
 						} else if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
