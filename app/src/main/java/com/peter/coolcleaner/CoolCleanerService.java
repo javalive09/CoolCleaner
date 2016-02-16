@@ -98,11 +98,18 @@ public class CoolCleanerService extends AccessibilityService {
     }
 
     private boolean isAuthorized(AccessibilityNodeInfo nodeInfo) {
-    	List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByText("开启");//nubia
-    	if(list.size() > 0) {
-    		return true;
-    	}
-    	return false;
+		if(android.os.Build.BRAND.equals("nubia")) {//nubia 手机适配
+			List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByText("开启");//nubia
+			if(list.size() > 0) {
+				return true;
+			}
+			return false;
+		}else {
+			return true;
+		}
+
+
+
     }
     
 	@Override

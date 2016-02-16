@@ -390,7 +390,7 @@ public class Main extends Activity {
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) {
 			if(mView instanceof Board) {
-				mContext.finish();
+				mContext.finish();//不要杀死自己的进程，以免下次进入会弹出辅助模式的设置页
 			}
 			return super.onSingleTapConfirmed(e);
 		}
