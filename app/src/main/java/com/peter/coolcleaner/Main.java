@@ -114,7 +114,6 @@ public class Main extends Activity {
 				public void onServiceConnected(ComponentName name, IBinder service) {
 					MyBinder binder = (MyBinder)service;
 					mService = binder.getService();
-					mService.board.startAnimation();
 				}
 
 				@Override

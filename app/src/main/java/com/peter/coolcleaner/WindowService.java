@@ -36,10 +36,7 @@ public class WindowService extends Service {
 		wmParams.height = LayoutParams.MATCH_PARENT;
 		board = new Board(main, null);
 		wm.addView(board, wmParams);
-		PropertyValuesHolder pvhAlpha = PropertyValuesHolder.ofFloat("alpha", .0f, 1.0f);
-        ObjectAnimator bAnim = ObjectAnimator.ofPropertyValuesHolder(board,
-                pvhAlpha).setDuration(1000);
-        bAnim.start();
+		board.startAnimation();
 	}
 
 	@Override

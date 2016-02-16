@@ -99,6 +99,8 @@ public class Board extends RelativeLayout {
 		
 		ImageView lock;
 
+		ObjectAnimator anim;
+
 		private Head(Context context, AttributeSet as) {
 			super(context, as);
 			lock = new ImageView(context);
@@ -106,13 +108,23 @@ public class Board extends RelativeLayout {
 			lock.setVisibility(View.GONE);
 			addView(lock);
 		}
-		
+
 		private void show() {
-			PropertyValuesHolder pvScaleX = PropertyValuesHolder.ofFloat("scaleX", 0, 1);
-			PropertyValuesHolder pvScaleY = PropertyValuesHolder.ofFloat("scaleY", 0, 1);
-			ObjectAnimator anim = ObjectAnimator.ofPropertyValuesHolder(this, pvScaleX, pvScaleY).setDuration(500);
-			anim.setInterpolator(new EaseInOutBackInterpolator());
-			anim.start();
+			setVisibility(View.VISIBLE);
+			if(anim == null) {
+				PropertyValuesHolder pvScaleX = PropertyValuesHolder.ofFloat("scaleX", 0, 1);
+				PropertyValuesHolder pvScaleY = PropertyValuesHolder.ofFloat("scaleY", 0, 1);
+				anim = ObjectAnimator.ofPropertyValuesHolder(this, pvScaleX, pvScaleY).setDuration(1000);
+				anim.setInterpolator(new EaseInOutBackInterpolator());
+				anim.start();
+				anim.addListener(new AnimatorListenerAdapter() {
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						super.onAnimationEnd(animation);
+						anim = null;
+					}
+				});
+			}
 		}
 		
 		public boolean outEdges() {
@@ -147,8 +159,8 @@ public class Board extends RelativeLayout {
 					+ "; pvY=" + getPivotY();
 		}
 
-		private void reset(boolean anim) {
-
+		private void reset(boolean anim, long delayMillis) {
+			setVisibility(View.INVISIBLE);
 			a = randfrange(0, 360);
 			va = randfrange(-30, 30);
 
@@ -159,8 +171,15 @@ public class Board extends RelativeLayout {
 			
 			x = randfrange(w, boardw - w);
 			y = randfrange(h, boardh - h);
+
 			if(anim) {
-				show();
+				postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						show();
+					}
+				}, delayMillis);
+
 			}
 		}
 
@@ -228,7 +247,7 @@ public class Board extends RelativeLayout {
 			nv.setBackground(drawable);
 			nv.boardWidth = getMeasuredWidth();
 			nv.boardHeight = getMeasuredHeight();
-			nv.reset(false);
+			nv.reset(true, 500);
 			nv.x = (randfrange(nv.w, nv.boardWidth - nv.w));
 			nv.y = (randfrange(nv.h, nv.boardHeight - nv.h));
 			if(info.isLock) {
@@ -306,10 +325,10 @@ public class Board extends RelativeLayout {
 								});
 
 							}else {
-								nv.reset(true);
+								nv.reset(true, 0);
 							}
 			        	}else {
-			        		nv.reset(true);
+			        		nv.reset(true, 0);
 			        	}
 			        }
 				}
@@ -323,7 +342,7 @@ public class Board extends RelativeLayout {
 			post(new Runnable() {
 				public void run() {
 					reset();
-					startAnimation();
+					mAnim.start();
 				}
 			});
 		} else {
@@ -332,8 +351,10 @@ public class Board extends RelativeLayout {
 	}
 
 	public void stopAnimation() {
-		if (mAnim != null)
+		if (mAnim != null) {
 			mAnim.cancel();
+			mAnim = null;
+		}
 	}
 
 	@Override
