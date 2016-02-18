@@ -1,10 +1,14 @@
 package com.peter.coolcleaner;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.peter.coolcleaner.Board.Head;
 import com.peter.coolcleaner.WindowService.MyBinder;
@@ -55,13 +59,17 @@ public class Main extends Activity {
 	WindowService mService;
 	
 	ServiceConnection conn;
+
+	ProgressView mPercentAge;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		ImageView iv = new ImageView(this);
-		iv.setBackgroundResource(R.drawable.bg);
-		setContentView(iv);
+		mPercentAge = new ProgressView(this);
+		mPercentAge.setBackgroundResource(R.drawable.bg);
+		setContentView(mPercentAge);
+		mHandler.postDelayed(refreshPercentAge, 1000);
 		refreshData();
 	}
 
@@ -103,6 +111,58 @@ public class Main extends Activity {
 			e.printStackTrace();
 		}
 		return value;
+	}
+
+	private long getTotalMemory() {
+		String str1 = "/proc/meminfo";// 系统内存信息文件
+		String str2;
+		String[] arrayOfString;
+		long initial_memory = 0;
+
+		try {
+			FileReader localFileReader = new FileReader(str1);
+			BufferedReader localBufferedReader = new BufferedReader(
+					localFileReader, 8192);
+			str2 = localBufferedReader.readLine();// 读取meminfo第一行，系统总内存大小
+
+			Log.i("peter", str2);
+
+			arrayOfString = str2.split(" ");
+			for (String num : arrayOfString) {
+				Log.i("peter", num);
+				if(!num.isEmpty() && isNumeric(num)) {
+					initial_memory = Integer.valueOf(num) * 1024;// 获得系统总内存，单位是KB，乘以1024转换为Byte
+					break;
+				}
+			}
+			localBufferedReader.close();
+
+		} catch (IOException e) {
+		}
+		return initial_memory;
+	}
+
+	public static boolean isNumeric(String str){
+		Pattern pattern = Pattern.compile("[0-9]*");
+		return pattern.matcher(str).matches();
+	}
+
+	private long getAvailMemory() {// 获取android当前可用内存大小
+		ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+		am.getMemoryInfo(mi);
+		//mi.availMem; 当前系统的可用内存
+		return mi.availMem;// 将获取的内存大小规格化
+	}
+
+	private int getPercentage() {
+		long total = getTotalMemory();
+		long avail = getAvailMemory();
+		Log.i("peter", "total =" + total);
+		Log.i("peter", "avail =" + avail);
+		int percentage = (int)((total - avail) * 100 /total);
+		Log.i("peter", "percentage = " + percentage);
+		return percentage;
 	}
 
 	private void bindService() {
@@ -151,12 +211,12 @@ public class Main extends Activity {
 							showForceStopView(info);
 						}
 					});
-
 					return;
 				}
 			}
 		}
 		clearAll = false;
+		mHandler.postDelayed(refreshPercentAge, 1000);
 	}
 
 	private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -165,6 +225,14 @@ public class Main extends Activity {
 		@Override
 		public void run() {
 			clearAll();
+		}
+	};
+
+	Runnable refreshPercentAge = new Runnable() {
+		@Override
+		public void run() {
+			int percentage = getPercentage();
+			mPercentAge.setProgress(percentage);
 		}
 	};
 
@@ -194,6 +262,8 @@ public class Main extends Activity {
 							
 							if(clearAll) {
 								mHandler.postDelayed(clearNext, 600);
+							}else {
+								mHandler.postDelayed(refreshPercentAge, 2000);
 							}
 						
 						} else if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {

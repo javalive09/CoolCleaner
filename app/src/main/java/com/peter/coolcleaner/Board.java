@@ -19,6 +19,7 @@ import android.animation.TimeAnimator;
 import android.animation.Animator.AnimatorListener;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
@@ -36,6 +37,7 @@ public class Board extends RelativeLayout {
 	
 	GestureDetector mGestureDetector;
 	MyOnGestureListener mGestureListener;
+	ProgressView mProgress;
 	int speed = 2000;
 
 	public Board(Context context, AttributeSet as) {
@@ -43,7 +45,9 @@ public class Board extends RelativeLayout {
 		setWillNotDraw(true);
 		mGestureListener = new MyOnGestureListener((Main) context);
 		mGestureDetector = new GestureDetector(context, mGestureListener);
-//		setBackgroundResource(R.drawable.bg);
+		mProgress = new ProgressView(context);
+		addView(mProgress,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		mProgress.setProgress(50);
 	}
 	
 	@SuppressLint("ClickableViewAccessibility")
